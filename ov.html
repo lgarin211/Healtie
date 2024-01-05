@@ -4,50 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcode Scanner</title>
-    <script src="https://cdn.rawgit.com/serratus/quaggaJS/0.12.1/dist/quagga.min.js"></script>
+    <title>Barcode Scanner with @justinribeiro/barcode-reader</title>
 </head>
 
 <body>
-    <h1>Barcode Scanner</h1>
-    <div id="interactive" class="viewport"></div>
+    <h1>Barcode Scanner with @justinribeiro/barcode-reader</h1>
+    <!-- Include the barcode-reader component in your HTML -->
+    <barcode-reader></barcode-reader>
 
+    <!-- input import 'barcode-reader'; -->
+    <script type="module" src="./node_modules/@justinribeiro/barcode-reader/barcode-reader.js"></script>
     <script>
-        // Inisialisasi QuaggaJS
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector("#interactive"),
-                constraints: {
-                    width: 480,
-                    height: 320,
-                    facingMode: "environment"
-                },
-            },
-            decoder: {
-                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "code_39_vin_reader", "codabar_reader", "upc_reader", "upc_e_reader", "i2of5_reader"]
-            },
-            locator: {
-                patchSize: "medium",
-                halfSample: true
-            },
-            numOfWorkers: 2,
-            frequency: 10,
-            debug: false,
-        });
+        customElements.whenDefined('barcode-reader').then(() => {
+            const barcodeReader = document.querySelector('barcode-reader');
+            // start the camera stream
+            // always looks for
+            // facingMode: {
+            //   exact: 'environment',
+            // }
+            barcodeReader.start();
 
-        // Mengaktifkan QuaggaJS dan menangani hasil pemindaian
-        Quagga.onDetected(function (result) {
-            alert("Barcode terdeteksi: " + result.codeResult.code);
-        });
+            // component returns a custom event with results
+            document.addEventListener('barcodes-found', (event) => {
+                console.log(event.detail.barcodes);
 
-        // Memulai QuaggaJS
-        Quagga.start();
-
-        // Memberhentikan QuaggaJS saat halaman ditutup
-        window.addEventListener("unload", function () {
-            Quagga.stop();
+                // if you want to stop streaming, ala, I'm hiding you now
+                barcodeReader.stop();
+            }, false);
         });
     </script>
 </body>
